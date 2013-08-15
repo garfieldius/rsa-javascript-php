@@ -10,32 +10,21 @@ You will need a server with PHP 5.3 installed and a web browser that does not ch
 
 ### Installation
 
-Create an autoloader for the PHP code. eg.:
+Install via composer
 
-```php
-
-// Define the folder in which the php files of this lib live in
-define('RSA_CLASS_PATH', '/path/to/the/php/folder/in/this/library/');
-
-// Add a simple auto loader
-spl_autoload_register(function($class) {
-	$class = ltrim($class, '\\');
-	if (substr($class, 0, 3) === 'RSA') {
-		require_once RSA_CLASS_PATH . substr($class, 4) . '.php';
-	}
-});
-
-```
+    composer install trenker/simple-rsa
 
 Now you can create a key pair like this:
 
 ```php
 
+require 'vendor/autoload.php';
+
 $key = \RSA\KeyPair::createNew();
 
 ```
 
-On the client side, include the rsa.js file (or the rsa.min.js file if you want to keep it small). 
+On the client side, include the rsa.js file (or the rsa.min.js file if you want to keep it small).
 
 ```html
 
@@ -43,22 +32,33 @@ On the client side, include the rsa.js file (or the rsa.min.js file if you want 
 
 ```
 
-After the script tag, that loads the rsa.js file you can use <code>$key->toJavascript();</code> function to create a code snippet that takes care of setting the values and creating an instance.
+You can *autoload* the rsa scripts using the `JavascriptHelper::getFrontendUrl` function
+
+```html
+
+<script type="text/javascript" src="<?= \RSA\JavascriptHelper::getFrontendUrl(); ?>"></script>
+
+```
+
+This will publish the the minified script to an accessible location. By default it is *DOCUMENT_ROOT/scripts/rsa.min.MTIME_TIMESTAMP.js*. This can easily be adjusted using the arguments or the function. Please take a look into the [source file](lib/RSA/JavascriptHelper.php) for details
+
+After the script tag, that loads the rsa.js file you can use `$key->toJavascript();` function to create a code snippet that takes care of setting the values and creating an instance.
 eg:
 
 ```html
 
 <script type="text/javascript">
 	<?php echo $key->toJavascript(); ?>
-	
+
 	// Now we can use it
 	// by default the RSAKey object lives in the "rsaEncrypter" variable
+
 	var cipherText = rsaEncrypter.encrypt("Something private");
 </script>
 
-```	
-	
-For a full example see the <code>demo/index.php</code> file	
+```
+
+For a full example see the [demo/index.php](demo/index.php) file
 
 ## License
 

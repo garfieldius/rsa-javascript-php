@@ -9,16 +9,7 @@
  *                                                                     */
 
 
-error_reporting(-1);
-define('DS', DIRECTORY_SEPARATOR);
-define('CLASS_PATH', realpath(__DIR__ . DS . '..' . DS . 'php') . DS);
-
-spl_autoload_register(function($class) {
-	$class = trim($class, '\\');
-	if (substr($class, 0, 3) === 'RSA') {
-		require_once CLASS_PATH . substr($class, 4) . '.php';
-	}
-});
+require_once '../vendor/autoload.php';
 
 set_exception_handler(function(Exception $e) {
 	echo '<pre>';
@@ -48,18 +39,18 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 
 	// If we have a key pair, load it
 	$key = unserialize($_SESSION['key']);
-	
-	
+
+
 	// If an encrypted text was sent, use the key pair to decrypt it
 	if (!empty($_POST['encrypted'])) {
 		$decrypted = $key->decrypt($_POST['encrypted']);
 		$decrypted = '<h3>Server Side Decryption</h3>' .
-					 '<p>Decrypted by PHP to:</p>' . 
+					 '<p>Decrypted by PHP to:</p>' .
 					 '<p><em>' . $decrypted . '</em></p>' .
 					 '<p>This one simply runs<br><code>$key->decrypt($_POST[\'encrypted\']);</code></p>';
 
 		// Another security warning: Sending back the decrypted data makes the whole thing useless !!
-		// Here it is done to demonstrate the behaviour, on a real live app you will not want this! 
+		// Here it is done to demonstrate the behaviour, on a real live app you will not want this!
 
 		// In case of an ajax request, output the data and exit
 		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
@@ -74,7 +65,7 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 <html>
 <head>
     <title>RSA Demo</title>
-	<link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css">
 </head>
 <body>
 <div class="container">
@@ -94,7 +85,7 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 			</p>
 			<p>This one simply runs <code>rsaEncrypter.encrypt("theText");</code></p>
 			<p>The public key modulus used is:<br>
-				<pre style="word-wrap:auto"><?php echo $key->getPublicKey(); ?></pre>
+				<code><?php echo $key->getPublicKey(); ?></code>
 			</p>
 
 		</section>
@@ -115,7 +106,7 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 
 
 			<?php
-			
+
 			// Output the decryption result
 			if (!empty($decrypted)) {
 				echo $decrypted;
@@ -128,15 +119,15 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script type="text/javascript" src="../javascript/rsa.js"></script>
+<script type="text/javascript" src="<?= \RSA\JavascriptHelper::getFrontendUrl(__DIR__); ?>"></script>
 <script type="text/javascript">
-	<?php 
-	
-		// We have loaded the rsa javascript before 
+	<?php
+
+		// We have loaded the rsa javascript before
 		// so we can use this helper to output a
 		// javascript snippet that creates a new RSAKey instance
-		echo $key->toJavascript(); 
-		
+		echo $key->toJavascript();
+
 	?>
 
 	$(function() {
@@ -148,12 +139,12 @@ if (empty($_SESSION['key']) || !empty($_GET['createNew'])) {
 		});
 	});
 	function EncryptMessage() {
-		
+
 		// The javascript function created previously creates the instance in the variable
 		// "rsaEncrypter" by default, so we can access it directly
 		var result = rsaEncrypter.encrypt( document.getElementById("plainText").value );
-		
-		
+
+
 		$("#result, #dataToDecrypt").val(result);
 		$("#decryptForm").show();
 	}

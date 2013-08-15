@@ -61,6 +61,10 @@ class KeyPair {
 		$this->privateKey = $privateKey;
 	}
 
+	public function __sleep() {
+		return array('publicKey', 'exponent', 'privateKey');
+	}
+
 	/**
 	 * Encrypt using private key
 	 *
@@ -129,7 +133,7 @@ class KeyPair {
 					}
 				}
 			}
-			
+
 			if (!self::$backend) {
 				throw new NoBackendException('Unable to optain a backend, please check your PHP configuration');
 			}

@@ -25,21 +25,7 @@ class SeclibBackend implements BackendInterface {
 	 * @return boolean
 	 */
 	public function isAvailable() {
-		$file = implode(DIRECTORY_SEPARATOR, array(
-			__DIR__, 'phpseclib', 'Crypt', 'RSA.php'
-		));
-		if (is_file($file)) {
-			@include $file;
-			if (class_exists('\\Crypt_RSA', FALSE)) {
-				set_include_path(
-					__DIR__ . DIRECTORY_SEPARATOR . 'phpseclib' .
-					PATH_SEPARATOR .
-					get_include_path()
-				);
-				return TRUE;
-			}
-		}
-		return FALSE;
+		return class_exists('\\Crypt_RSA');
 	}
 
 	/**

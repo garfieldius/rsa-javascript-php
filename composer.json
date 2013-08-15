@@ -1,0 +1,25 @@
+{
+	"name": "trenker/simple-rsa",
+	"type": "library",
+	"description": "Easy to use and integrate API for using RSA encrypted values during HTTP communication.",
+	"license": "BSD 3-Clause License",
+	"authors": [
+		{
+			"name": "Georg Großberger",
+			"email": "contact@grossberger-ge.org",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0",
+		"phpseclib/phpseclib": "dev-master"
+	},
+	"suggest": {
+		"ext-openssl": "Install the OpenSSL extension for MUCH faster operations."
+	},
+	"autoload": {
+		"psr-0": {
+			"RSA": "lib/"
+		}
+	}
+}

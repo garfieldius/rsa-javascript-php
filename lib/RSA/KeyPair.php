@@ -53,35 +53,39 @@ class KeyPair {
 	 * @param string $publicKey
 	 * @param string $exponent
 	 * @param string $privateKey
+	 * @param string $pPublicKey
 	 */
-	private final function __construct($publicKey, $exponent, $privateKey) {
+	private final function __construct($publicKey, $exponent, $privateKey, $pPublicKey) {
 		$this->publicKey = $publicKey;
 		$this->exponent = $exponent;
 		$this->privateKey = $privateKey;
+		$this->pPublicKey = $pPublicKey;
 	}
 
 	public function __sleep() {
-		return array('publicKey', 'exponent', 'privateKey');
+		return array('publicKey', 'exponent', 'privateKey', 'pPublicKey');
 	}
 
 	/**
 	 * Encrypt using private key
 	 *
 	 * @param string $plainText
+	 * @param bool $public Encrypt with public key
 	 * @return string
 	 */
-	public function encrypt($plainText) {
-		return self::getBackend()->encrypt($this, $plainText);
+	public function encrypt($plainText, $public=0) {
+		return self::getBackend()->encrypt($this, $plainText, $public);
 	}
 
 	/**
 	 * Decrypt using private key
 	 *
 	 * @param string $encrypted
+	 * @param bool $public Decrypt with public key
 	 * @return string
 	 */
-	public function decrypt($encrypted) {
-		return self::getBackend()->decrypt($this, $encrypted);
+	public function decrypt($encrypted, $public=0) {
+		return self::getBackend()->decrypt($this, $encrypted, $public);
 	}
 
 	/**
@@ -105,8 +109,8 @@ class KeyPair {
 	 * @return KeyPair
 	 */
 	public static function createNew() {
-		list($publicKey, $exponent, $privateKey) = self::getBackend()->createKeys();
-		return new KeyPair($publicKey, $exponent, $privateKey);
+		list($publicKey, $exponent, $privateKey, $pPublicKey) = self::getBackend()->createKeys();
+		return new KeyPair($publicKey, $exponent, $privateKey, $pPublicKey);
 	}
 
 	/**
@@ -163,7 +167,10 @@ class KeyPair {
 	 *
 	 * @return string
 	 */
-	public function getPublicKey() {
+	public function getPublicKey($public=0) {
+        if ($public) {
+            return $this->pPublicKey;
+        }
 		return $this->publicKey;
 	}
 }

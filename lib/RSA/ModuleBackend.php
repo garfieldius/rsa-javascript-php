@@ -51,6 +51,10 @@ class ModuleBackend implements BackendInterface {
 		// Export the private key
 		openssl_pkey_export($keyResource, $privateKey);
 
+        // Export the public key
+        $pubkey = openssl_pkey_get_details($keyResource);
+        $pPubliKey = $pubkey["key"];
+
 		// Export the public key
 		openssl_csr_export($csr, $data, FALSE);
 		preg_match('/Modulus:\n?(?P<publicKey>[a-f0-9:\s]+)\s*Exponent:\s*(?P<exponent>[0-9]+)/', $data, $matches);
@@ -59,7 +63,7 @@ class ModuleBackend implements BackendInterface {
 		$exponent  = (int) $matches['exponent'];
 
 		openssl_free_key($keyResource);
-		return array($publicKey, $exponent, $privateKey);
+		return array($publicKey, $exponent, $privateKey, $pPubliKey);
 	}
 
 	/**
@@ -67,11 +71,16 @@ class ModuleBackend implements BackendInterface {
 	 *
 	 * @param KeyPair $key
 	 * @param string $plainText
+	 * @param bool $public encryp with public key
 	 * @throws EncryptionException
 	 * @return string
 	 */
-	public function encrypt(KeyPair $key, $plainText) {
-		$success = openssl_private_encrypt($plainText, $result, $key->getPrivateKey());
+	public function encrypt(KeyPair $key, $plainText, $public=false) {
+        if ($public) {
+    		$success = openssl_public_encrypt($plainText, $result, $key->getPublicKey(true));
+        } else {
+    		$success = openssl_private_encrypt($plainText, $result, $key->getPrivateKey());
+        }
 		if ($success !== TRUE) {
 			throw new EncryptionException('Encryption failed');
 		}
@@ -83,12 +92,17 @@ class ModuleBackend implements BackendInterface {
 	 *
 	 * @param KeyPair $key
 	 * @param string $encryptedText
+	 * @param bool $public decryp with public key
 	 * @throws DecryptionException
 	 * @return string
 	 */
-	public function decrypt(KeyPair $key, $encryptedText) {
+	public function decrypt(KeyPair $key, $encryptedText, $public=false) {
 		$encryptedText = base64_decode($encryptedText);
-		$success = openssl_private_decrypt($encryptedText, $result, $key->getPrivateKey());
+        if ($public) {
+    		$success = openssl_public_decrypt($encryptedText, $result, $key->getPublicKey(true));
+        } else {
+    		$success = openssl_private_decrypt($encryptedText, $result, $key->getPrivateKey());
+        }
 		if ($success !== TRUE) {
 			throw new DecryptionException('Decryption failed');
 		}
